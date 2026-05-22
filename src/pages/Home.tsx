@@ -84,12 +84,35 @@ export default function Home() {
               <div className="relative w-full max-w-md h-96">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 to-lime-400/30 rounded-2xl blur-3xl animate-pulse"></div>
                 <div className="absolute -inset-2 bg-gradient-to-tr from-cyan-600/10 to-lime-400/10 rounded-2xl blur-xl opacity-50"></div>
-                <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-cyan-500/40 shadow-2xl shadow-cyan-500/10 transform hover:scale-110 transition-all duration-500 flex items-center justify-center h-full">
-                  <img
-                    src="/image.png"
-                    alt="Cyber Spyde Logo"
-                    className="w-80 h-80 object-contain drop-shadow-2xl filter brightness-125 hover:brightness-150 transition-all duration-500 animate-float"
-                  />
+                <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-cyan-500/40 shadow-2xl shadow-cyan-500/10 transform hover:scale-110 transition-all duration-500 flex items-center justify-center h-full animate-float">
+                  {/* Spider Logo SVG */}
+                  <svg className="w-80 h-80 drop-shadow-2xl filter brightness-125 hover:brightness-150 transition-all duration-500" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Spider body */}
+                    <circle cx="200" cy="180" r="45" fill="#06b6d4" opacity="0.8" />
+                    <ellipse cx="200" cy="220" rx="30" ry="40" fill="#0891b2" opacity="0.9" />
+
+                    {/* Spider eyes */}
+                    <circle cx="185" cy="170" r="8" fill="#86efac" />
+                    <circle cx="215" cy="170" r="8" fill="#86efac" />
+                    <circle cx="185" cy="170" r="4" fill="#1a1a1a" />
+                    <circle cx="215" cy="170" r="4" fill="#1a1a1a" />
+
+                    {/* Front left legs */}
+                    <path d="M 160 190 Q 120 160 100 120" stroke="#22c55e" strokeWidth="8" strokeLinecap="round" fill="none" />
+                    <path d="M 160 210 Q 110 200 80 180" stroke="#22c55e" strokeWidth="8" strokeLinecap="round" fill="none" />
+
+                    {/* Front right legs */}
+                    <path d="M 240 190 Q 280 160 300 120" stroke="#22c55e" strokeWidth="8" strokeLinecap="round" fill="none" />
+                    <path d="M 240 210 Q 290 200 320 180" stroke="#22c55e" strokeWidth="8" strokeLinecap="round" fill="none" />
+
+                    {/* Back left legs */}
+                    <path d="M 170 250 Q 130 280 100 320" stroke="#15803d" strokeWidth="8" strokeLinecap="round" fill="none" />
+                    <path d="M 180 260 Q 140 300 110 350" stroke="#15803d" strokeWidth="8" strokeLinecap="round" fill="none" />
+
+                    {/* Back right legs */}
+                    <path d="M 230 250 Q 270 280 300 320" stroke="#15803d" strokeWidth="8" strokeLinecap="round" fill="none" />
+                    <path d="M 220 260 Q 260 300 290 350" stroke="#15803d" strokeWidth="8" strokeLinecap="round" fill="none" />
+                  </svg>
                 </div>
               </div>
             </div>
