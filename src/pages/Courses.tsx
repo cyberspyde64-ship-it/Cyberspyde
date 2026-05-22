@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
+import PaymentModal from '../components/PaymentModal';
 import {
   BookOpen,
   Clock,
@@ -13,6 +14,7 @@ import {
   Loader2,
   Star,
   LogIn,
+  CreditCard,
 } from 'lucide-react';
 
 interface Course {
@@ -38,6 +40,7 @@ export default function Courses() {
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [ratingCourse, setRatingCourse] = useState<string | null>(null);
+  const [paymentCourse, setPaymentCourse] = useState<Course | null>(null);
 
   useEffect(() => {
     fetchCourses();
@@ -66,20 +69,39 @@ export default function Courses() {
     setEnrolledIds(new Set((data || []).map(e => e.course_id)));
   };
 
-  const handleEnroll = async (courseId: string) => {
+  const handleEnroll = (courseId: string) => {
     if (!user) return;
-    setEnrolling(courseId);
+    const course = courses.find(c => c.id === courseId);
+    if (course) {
+      setPaymentCourse(course);
+    }
+  };
+
+  const handlePaymentComplete = async (transactionId: string) => {
+    if (!user || !paymentCourse) return;
+    setEnrolling(paymentCourse.id);
     try {
+      // Record payment
+      await supabase.from('payments').insert({
+        student_id: user.id,
+        course_id: paymentCourse.id,
+        amount: paymentCourse.price,
+        transaction_id: transactionId,
+        status: 'completed',
+        payment_date: new Date().toISOString(),
+      });
+
+      // Create enrollment
       const { error } = await supabase.from('enrollments').insert({
         student_id: user.id,
-        course_id: courseId,
+        course_id: paymentCourse.id,
         status: 'active',
         payment_status: 'paid',
       });
       if (error) throw error;
-      setEnrolledIds(prev => new Set([...prev, courseId]));
+      setEnrolledIds(prev => new Set([...prev, paymentCourse.id]));
+      setPaymentCourse(null);
 
-      const course = courses.find(c => c.id === courseId);
       try {
         await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/enrollment-confirm`, {
           method: 'POST',
@@ -90,14 +112,15 @@ export default function Courses() {
           body: JSON.stringify({
             student_email: user.email,
             student_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
-            course_title: course?.title || '',
+            course_title: paymentCourse?.title || '',
           }),
         });
       } catch {
         // Email confirmation is non-critical
       }
-    } catch {
-      alert('Enrollment failed. You may already be enrolled.');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Enrollment failed. Please try again.');
     } finally {
       setEnrolling(null);
     }
@@ -278,9 +301,9 @@ export default function Courses() {
                               {enrolling === course.id ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
                               ) : (
-                                <ArrowRight className="w-4 h-4" />
+                                <CreditCard className="w-4 h-4" />
                               )}
-                              Enroll
+                              {enrolling === course.id ? 'Enrolling...' : 'Enroll'}
                             </button>
                           )}
                         </div>
@@ -293,6 +316,16 @@ export default function Courses() {
           )}
         </div>
       </section>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        open={!!paymentCourse}
+        onClose={() => setPaymentCourse(null)}
+        courseTitle={paymentCourse?.title || ''}
+        coursePrice={paymentCourse?.price || 400}
+        studentEmail={user?.email || ''}
+        onPaymentComplete={handlePaymentComplete}
+      />
     </div>
   );
 }
